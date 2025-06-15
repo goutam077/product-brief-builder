@@ -54,7 +54,7 @@ const Index = () => {
           if (error) {
             toast({ title: 'Error fetching data', description: error.message, variant: 'destructive' });
           } else if (data) {
-            setSectionContent(data.content);
+            setSectionContent(data.content as { [key: string]: string });
             setPrdId(data.id);
           } else {
             setSectionContent(DEFAULT_SECTION_CONTENT);
