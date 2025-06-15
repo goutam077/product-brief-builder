@@ -18,10 +18,8 @@ const Index = () => {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [sectionContent, setSectionContent] = useState<{ [key: string]: string }>(DEFAULT_SECTION_CONTENT);
 
-  // For now, just fill with sample data for demo purposes.
   function parsePRDSectionsFromDoc(raw: string) {
-    // Define the regex patterns for each section. They should match headings at the start of a line.
-    // The keys must match SECTION_LABELS in PRDEditor.
+    // Define regex patterns for each section. The keys must match SECTION_LABELS in PRDEditor.
     const SECTION_PATTERNS = [
       { id: "overview", pattern: /^(overview)\s*:?/i },
       { id: "objectives", pattern: /^(objectives|goals)\s*:?/i },
@@ -43,23 +41,21 @@ const Index = () => {
         if (sec.pattern.test(line)) {
           currentId = sec.id;
           foundSection = true;
-          // Initialize new section if not present
           if (!sections[currentId]) sections[currentId] = [];
           break;
         }
       }
-      // If this is not a section heading, add to current section
       if (!foundSection && currentId) {
         sections[currentId].push(line);
       }
     }
 
-    // Build final section objects with fallback defaults
     const parsed: { [key: string]: string } = {};
     SECTION_PATTERNS.forEach(sec => {
       parsed[sec.id] = (sections[sec.id] || []).join("\n").trim();
     });
 
+    console.log("[PRDEditor Section Parse Result]", parsed); // log parser output
     return parsed;
   }
 
@@ -87,7 +83,6 @@ const Index = () => {
   }
 
   const handleExport = () => {
-    // Just simulate "export"—full logic (save as .docx/.pdf) next!
     toast({
       title: "Export Coming Soon!",
       description: "Exporting as Word or PDF will be available in the next version.",

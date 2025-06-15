@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,7 @@ export const UploadRequirementFile: React.FC<UploadRequirementFileProps> = ({
         if (arrayBuffer instanceof ArrayBuffer) {
           try {
             const { value } = await mammoth.extractRawText({ arrayBuffer });
+            console.log("[Docx Extraction Result]", value); // log extracted text
             onUpload(value);
           } catch (err) {
             onUpload("");
@@ -46,6 +46,7 @@ export const UploadRequirementFile: React.FC<UploadRequirementFileProps> = ({
       const reader = new FileReader();
       reader.onload = (event) => {
         let text = (event.target?.result as string) || "";
+        console.log("[Plain Text Extraction Result]", text); // log extracted text
         onUpload(text);
       };
       reader.readAsText(file);
