@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { UploadRequirementFile } from "@/components/UploadRequirementFile";
 import { PRDEditor } from "@/components/PRDEditor";
@@ -42,13 +43,6 @@ const Index = () => {
     }, 1400);
   }
 
-  const handleExport = () => {
-    toast({
-      title: "Export Coming Soon!",
-      description: "Exporting as Word or PDF will be available in the next version.",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col px-6 py-12 items-center">
       <div className="max-w-4xl w-full">
@@ -65,7 +59,6 @@ const Index = () => {
         <PRDEditor
           sectionContent={sectionContent}
           setSectionContent={setSectionContent}
-          onExport={handleExport}
         />
       </div>
       <footer className="mt-12 text-muted-foreground text-sm tracking-wide">
