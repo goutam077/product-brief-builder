@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UploadRequirementFile } from "@/components/UploadRequirementFile";
 import { PRDEditor } from "@/components/PRDEditor";
@@ -20,14 +19,64 @@ const Index = () => {
   const [sectionContent, setSectionContent] = useState<{ [key: string]: string }>(DEFAULT_SECTION_CONTENT);
 
   // For now, just fill with sample data for demo purposes.
+  function parsePRDSectionsFromDoc(raw: string) {
+    // Define the regex patterns for each section. They should match headings at the start of a line.
+    // The keys must match SECTION_LABELS in PRDEditor.
+    const SECTION_PATTERNS = [
+      { id: "overview", pattern: /^(overview)\s*:?/i },
+      { id: "objectives", pattern: /^(objectives|goals)\s*:?/i },
+      { id: "assumptions", pattern: /^(assumptions)\s*:?/i },
+      { id: "functional", pattern: /^(functional requirements?)\s*:?/i },
+      { id: "nonfunctional", pattern: /^(non[-\s]?functional requirements?)\s*:?/i },
+      { id: "constraints", pattern: /^(constraints|limitations)\s*:?/i },
+      { id: "success", pattern: /^(success metrics?|acceptance criteria)\s*:?/i },
+    ];
+
+    const lines = raw.split(/\r?\n/).map(l => l.trim());
+    const sections: { [key: string]: string[] } = {};
+    let currentId: string | null = null;
+
+    for (let line of lines) {
+      // Check if line matches any section heading
+      let foundSection = false;
+      for (const sec of SECTION_PATTERNS) {
+        if (sec.pattern.test(line)) {
+          currentId = sec.id;
+          foundSection = true;
+          // Initialize new section if not present
+          if (!sections[currentId]) sections[currentId] = [];
+          break;
+        }
+      }
+      // If this is not a section heading, add to current section
+      if (!foundSection && currentId) {
+        sections[currentId].push(line);
+      }
+    }
+
+    // Build final section objects with fallback defaults
+    const parsed: { [key: string]: string } = {};
+    SECTION_PATTERNS.forEach(sec => {
+      parsed[sec.id] = (sections[sec.id] || []).join("\n").trim();
+    });
+
+    return parsed;
+  }
+
   function handleFileUpload(content: string) {
     setUploadError(null);
     setLoading(true);
     setTimeout(() => {
-      // Simulate AI parsing of uploaded requirements, create draft PRD.
+      // Attempt to parse PRD sections from file and use defaults as fallback
+      const parsed = parsePRDSectionsFromDoc(content);
       setSectionContent({
         ...DEFAULT_SECTION_CONTENT,
-        overview: "AI-generated Overview from uploaded requirement: " + content.substring(0, 96) + (content.length > 96 ? "..." : ""),
+        ...Object.fromEntries(
+          Object.entries(parsed).map(([key, val]) => [
+            key,
+            val && val.length > 0 ? val : DEFAULT_SECTION_CONTENT[key]
+          ])
+        ),
       });
       setLoading(false);
       toast({
