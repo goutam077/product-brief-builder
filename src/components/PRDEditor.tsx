@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { File } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
+import { saveAs } from "file-saver";
 
 const SECTION_LABELS = [
   { id: "overview", title: "Overview" },
@@ -44,9 +47,72 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
   // Export option dropdown: handle export format selection
   const handleExport = (format: "word" | "pdf") => {
     if (format === "word") {
-      toast({
-        title: "Export Coming Soon!",
-        description: "Exporting to Word (.docx) will be available in the next version.",
+      const docChildren = SECTION_LABELS.flatMap((section) => {
+        const content = sectionContent[section.id] || "";
+        const contentLines = content.split('\n').filter(line => line.trim() !== '');
+
+        const sectionElements = [
+          new Paragraph({
+            children: [new TextRun({ text: section.title, bold: true, size: 28 })], // 14pt font
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 480, after: 240 },
+          }),
+        ];
+        
+        if (contentLines.length > 0) {
+          contentLines.forEach(line => {
+            sectionElements.push(new Paragraph({ text: line, spacing: { after: 120 } }));
+          });
+        } else {
+          sectionElements.push(new Paragraph({ 
+            children: [new TextRun({ text: "Not specified.", italics: true })],
+            style: "placeholder"
+          }));
+        }
+
+        return sectionElements;
+      });
+
+      const doc = new Document({
+        styles: {
+          paragraphStyles: [{
+              id: "placeholder",
+              name: "Placeholder",
+              basedOn: "Normal",
+              next: "Normal",
+              run: {
+                color: "888888",
+                italics: true,
+              },
+            }]
+        },
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: "Product Requirements Document", size: 44, bold: true })],
+              heading: HeadingLevel.TITLE,
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 480 },
+            }),
+            ...docChildren
+          ],
+        }],
+      });
+
+      Packer.toBlob(doc).then(blob => {
+        saveAs(blob, "prd.docx");
+        toast({
+          title: "Export Successful!",
+          description: "Your PRD has been exported as a Word document.",
+        });
+      }).catch(err => {
+        console.error("Error exporting to Word:", err);
+        toast({
+          title: "Export Failed",
+          description: "There was an error generating the Word document.",
+          variant: "destructive",
+        });
       });
     } else if (format === "pdf") {
       toast({
@@ -54,7 +120,6 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
         description: "Exporting to PDF will be available in the next version.",
       });
     }
-    // This stubs export with a toast; real logic goes here in future.
   };
 
   return (
