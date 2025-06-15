@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { UploadRequirementFile } from "@/components/UploadRequirementFile";
 import { PRDEditor } from "@/components/PRDEditor";
 import { toast } from "@/hooks/use-toast";
+import { parsePRDSectionsFromDoc } from "@/utils/parsePRDSections";
 
 const DEFAULT_SECTION_CONTENT = {
   overview: "This product will solve the most pressing problems identified in the uploaded requirements.",
@@ -18,52 +19,11 @@ const Index = () => {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [sectionContent, setSectionContent] = useState<{ [key: string]: string }>(DEFAULT_SECTION_CONTENT);
 
-  function parsePRDSectionsFromDoc(raw: string) {
-    // Define regex patterns for each section. The keys must match SECTION_LABELS in PRDEditor.
-    const SECTION_PATTERNS = [
-      { id: "overview", pattern: /^(overview)\s*:?/i },
-      { id: "objectives", pattern: /^(objectives|goals)\s*:?/i },
-      { id: "assumptions", pattern: /^(assumptions)\s*:?/i },
-      { id: "functional", pattern: /^(functional requirements?)\s*:?/i },
-      { id: "nonfunctional", pattern: /^(non[-\s]?functional requirements?)\s*:?/i },
-      { id: "constraints", pattern: /^(constraints|limitations)\s*:?/i },
-      { id: "success", pattern: /^(success metrics?|acceptance criteria)\s*:?/i },
-    ];
-
-    const lines = raw.split(/\r?\n/).map(l => l.trim());
-    const sections: { [key: string]: string[] } = {};
-    let currentId: string | null = null;
-
-    for (let line of lines) {
-      // Check if line matches any section heading
-      let foundSection = false;
-      for (const sec of SECTION_PATTERNS) {
-        if (sec.pattern.test(line)) {
-          currentId = sec.id;
-          foundSection = true;
-          if (!sections[currentId]) sections[currentId] = [];
-          break;
-        }
-      }
-      if (!foundSection && currentId) {
-        sections[currentId].push(line);
-      }
-    }
-
-    const parsed: { [key: string]: string } = {};
-    SECTION_PATTERNS.forEach(sec => {
-      parsed[sec.id] = (sections[sec.id] || []).join("\n").trim();
-    });
-
-    console.log("[PRDEditor Section Parse Result]", parsed); // log parser output
-    return parsed;
-  }
-
   function handleFileUpload(content: string) {
     setUploadError(null);
     setLoading(true);
     setTimeout(() => {
-      // Attempt to parse PRD sections from file and use defaults as fallback
+      // Use improved utility parser on incoming content
       const parsed = parsePRDSectionsFromDoc(content);
       setSectionContent({
         ...DEFAULT_SECTION_CONTENT,
