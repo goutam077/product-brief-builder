@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -10,7 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { file as FileIcon } from "lucide-react";
+import { File } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const SECTION_LABELS = [
@@ -118,14 +117,14 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
               onClick={() => handleExport("word")}
               className="cursor-pointer"
             >
-              <FileIcon className="mr-2 h-4 w-4 text-blue-600" />
+              <File className="mr-2 h-4 w-4 text-blue-600" />
               Export as Word
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleExport("pdf")}
               className="cursor-pointer"
             >
-              <FileIcon className="mr-2 h-4 w-4 text-red-600" />
+              <File className="mr-2 h-4 w-4 text-red-600" />
               Export as PDF
             </DropdownMenuItem>
           </DropdownMenuContent>
