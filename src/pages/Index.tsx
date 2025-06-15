@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 const DEFAULT_SECTION_CONTENT = {
   overview: "This product will solve the most pressing problems identified in the uploaded requirements.",
   objectives: "1. Improve process efficiency\n2. Enhance user satisfaction\n3. Reduce operational costs",
+  assumptions: "- Users are familiar with basic product workflows\n- Integration APIs are available and operational",
   functional: "- Users can upload and edit documents\n- The system parses requirements and fills in the PRD template\n- Export functionality available",
   nonfunctional: "- Must be responsive\n- Support all major browsers\n- Ensure security and confidentiality",
   constraints: "- Integrate with existing IT systems\n- Must use approved technologies only",
