@@ -4,21 +4,23 @@
  * regardless of their formatting. Headings are matched even with extra spaces, colons, or dashes.
  */
 
+// Reordered to check for "nonfunctional" before "functional" to avoid incorrect matches.
+// Added "requirements" as a keyword for the functional section to catch more variations.
 const SECTION_DEFS = [
   { id: "overview", keywords: ["overview"] },
   { id: "objectives", keywords: ["objectives", "goals"] },
   { id: "assumptions", keywords: ["assumptions"] },
-  { id: "functional", keywords: ["functional requirements", "functional requirement"] },
   { id: "nonfunctional", keywords: ["non-functional requirements", "non functional requirements", "nonfunctional requirements", "nonfunctional requirement"] },
+  { id: "functional", keywords: ["functional requirements", "functional requirement", "requirements"] },
   { id: "constraints", keywords: ["constraints", "limitations"] },
   { id: "success", keywords: ["success metrics", "acceptance criteria"] },
 ];
 
-// Match section heading, e.g. Objectives:, Objectives-, objectives, etc.
+// Updated regex to find keyword as a whole word/phrase anywhere in the line, not anchored to start/end.
 function makeSectionRegex(keyword: string): RegExp {
-  // ^\s*keyword\s*[:\-]?\s*$
+  // \bkeyword\b
   return new RegExp(
-    "^\\s*" + keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&") + "\\s*[:\\-]?(\\s*)$",
+    "\\b" + keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&") + "\\b",
     "i"
   );
 }
