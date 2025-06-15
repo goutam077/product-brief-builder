@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import mammoth from "mammoth";
 
 interface UploadRequirementFileProps {
   onUpload: (fileText: string) => void;
@@ -17,18 +18,38 @@ export const UploadRequirementFile: React.FC<UploadRequirementFileProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Parsers to be added in the next version for .docx/.xlsx.
-  // Here we'll just read text content for demo purpsoes.
+  // Enhanced parser: reads Word .docx as text using mammoth, others as plain text.
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      let text = (event.target?.result as string) || "";
-      // In a real app, we'd parse docx/xlsx here.
-      onUpload(text);
-    };
-    reader.readAsText(file);
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+
+    if (ext === "docx") {
+      // Use mammoth to extract text from a docx file
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const arrayBuffer = event.target?.result;
+        if (arrayBuffer instanceof ArrayBuffer) {
+          try {
+            const { value } = await mammoth.extractRawText({ arrayBuffer });
+            onUpload(value);
+          } catch (err) {
+            onUpload("");
+            console.error("Failed to parse DOCX:", err);
+          }
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      // Fallback: treat as plain text
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        let text = (event.target?.result as string) || "";
+        onUpload(text);
+      };
+      reader.readAsText(file);
+    }
   };
 
   return (
