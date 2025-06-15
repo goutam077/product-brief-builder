@@ -25,9 +25,11 @@ function makeSectionRegex(keyword: string): RegExp {
   );
 }
 
+// By sorting keywords by length descending, we ensure more specific phrases are matched first
+// e.g., "non-functional requirements" is checked before "requirements".
 const sectionHeadingPatterns = SECTION_DEFS
-  .map(sec => sec.keywords.map(k => ({ id: sec.id, regex: makeSectionRegex(k) })))
-  .flat();
+  .flatMap(sec => sec.keywords.map(k => ({ id: sec.id, keyword: k, regex: makeSectionRegex(k) })))
+  .sort((a, b) => b.keyword.length - a.keyword.length);
 
 export function parsePRDSectionsFromDoc(raw: string) {
   // Split input text into lines
