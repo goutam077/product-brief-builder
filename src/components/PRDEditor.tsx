@@ -1,9 +1,16 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { FileWord, FilePdf } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const SECTION_LABELS = [
   { id: "overview", title: "Overview" },
@@ -34,6 +41,22 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
     setSectionContent({ ...sectionContent, [id]: value });
   };
 
+  // Export option dropdown: handle export format selection
+  const handleExport = (format: "word" | "pdf") => {
+    if (format === "word") {
+      toast({
+        title: "Export Coming Soon!",
+        description: "Exporting to Word (.docx) will be available in the next version.",
+      });
+    } else if (format === "pdf") {
+      toast({
+        title: "Export Coming Soon!",
+        description: "Exporting to PDF will be available in the next version.",
+      });
+    }
+    // This stubs export with a toast; real logic goes here in future.
+  };
+
   return (
     <Card className="mb-6 shadow p-8">
       <h2 className="text-2xl font-bold mb-4">Step 2: Edit Product Requirements Document</h2>
@@ -61,8 +84,52 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
         ))}
       </Tabs>
       <div className="flex justify-end mt-4">
-        <Button onClick={onExport}>Export PRD</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              Export PRD
+              <svg
+                className="ml-2 h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M7 7l3-3 3 3M10 4v8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M4 15h12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => handleExport("word")}
+              className="cursor-pointer"
+            >
+              <FileWord className="mr-2 h-4 w-4 text-blue-600" />
+              Export as Word
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleExport("pdf")}
+              className="cursor-pointer"
+            >
+              <FilePdf className="mr-2 h-4 w-4 text-red-600" />
+              Export as PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </Card>
-  )
-}
+  );
+};
