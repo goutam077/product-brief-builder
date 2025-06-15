@@ -13,7 +13,6 @@ import {
 import { File } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType } from "docx";
-import { saveAs } from "file-saver";
 
 const SECTION_LABELS = [
   { id: "overview", title: "Overview" },
@@ -101,7 +100,14 @@ export const PRDEditor: React.FC<PRDEditorProps> = ({
       });
 
       Packer.toBlob(doc).then(blob => {
-        saveAs(blob, "prd.docx");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "prd.docx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
         toast({
           title: "Export Successful!",
           description: "Your PRD has been exported as a Word document.",
